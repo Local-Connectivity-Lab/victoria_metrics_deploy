@@ -13,16 +13,14 @@ fi
 cd victoria_metrics
 
 
-#vm_exe=victoria-metrics-linux-amd64-v1.122.0.tar.gz
-#wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.122.0/$vm_exe
-
+#vm_exe=victoria-logs-linux-amd64-v1.26.0.tar.gz
+#wget https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v1.26.0/$vm_exe
 #tar xf $vm_exe
 #rm $vm_exe
 
 
 #vmutils_exe=vmutils-linux-amd64-v1.122.0.tar.gz
 #wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.122.0/$vmutils_exe
-
 #tar xf $vmutils_exe
 #rm $vmutils_exe vmagent-prod vmalert-prod vmalert-tool-prod vmbackup-prod vmctl-prod vmrestore-prod
 
@@ -30,22 +28,22 @@ cat << EOF > ./auth.yml
 users:
   - username: user
     password: $VM_VIEWER_PASSWORD
-    url_prefix: "http://localhost:8428/"
+    url_prefix: "http://localhost:9428/"
 EOF
 
 
 
-vm="victoria_metrics"
+vm="victoria_logs"
 vm_log_path="/var/log/$vm.log"
 cat << EOF > /etc/systemd/system/$vm.service
 [Unit]
-Description=victoria metrics
+Description=victoria logs
 After=network.target
 
 [Service]
 Type=simple
 WorkingDirectory=$(pwd)
-ExecStart=$(pwd)/victoria-metrics-prod
+ExecStart=$(pwd)/victoria-logs-prod
 Restart=always
 RestartSec=10
 StandardOutput=append:$vm_log_path
@@ -96,9 +94,9 @@ cat << EOF > $parser_file_path
 [PARSER]
     Name       vm_parser
     Format     regex
-    Regex      ^(?<time>Z)\s+(?<level>[^ ]+)\s+(?<source>[^ ]+)\s+(?<msg>.+)$
+    Regex      ^(?<time>[^ ]+)\s+(?<level>[^ ]+)\s+(?<source>[^ ]+)\s+(?<msg>.+)$
     Time_Key   time
-    Time_Format %Y-%m-%dT%H:%M:%S.%L
+    Time_Format %Y-%m-%dT%H:%M:%S.%LZ
 EOF
 
 cat << EOF > /etc/fluent-bit/fluent-bit.conf
@@ -111,17 +109,16 @@ cat << EOF > /etc/fluent-bit/fluent-bit.conf
     Tag           vm_log
     Parser        vm_parser
 
-[FILTER]
-    Name        record_modifier
-    Match       vm_log
-    Record      stream yol.log
+[OUTPUT]
+    Name stdout
+    Match vm_log
 
 [OUTPUT]
     Name        http
     Match       vm_log
     Host        172.16.20.23
     Port        8427  # vmauth port
-    URI         /insert/jsonline?_stream_fields=stream&_msg_field=msg&_time_field=time
+    URI         /insert/jsonline?_msg_field=msg&_time_field=time
     Format      json_lines
     Compress    gzip
     Header      Authorization Basic $base64_credentials
