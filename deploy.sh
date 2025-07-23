@@ -94,7 +94,7 @@ cat << EOF > $parser_file_path
 [PARSER]
     Name       vm_parser
     Format     regex
-    Regex      ^(?<time>[^ ]+)\s+(?<level>[^ ]+)\s+(?<source>[^ ]+)\s+(?<msg>.+)$
+    Regex      ^(?<time>[^ \t]+)\s+(?<msg>.+)$
     Time_Key   time
     Time_Format %Y-%m-%dT%H:%M:%S.%LZ
 EOF
@@ -108,10 +108,6 @@ cat << EOF > /etc/fluent-bit/fluent-bit.conf
     Path          $vm_log_path
     Tag           vm_log
     Parser        vm_parser
-
-[OUTPUT]
-    Name stdout
-    Match vm_log
 
 [OUTPUT]
     Name        http
