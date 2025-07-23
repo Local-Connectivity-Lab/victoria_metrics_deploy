@@ -96,9 +96,9 @@ cat << EOF > $parser_file_path
 [PARSER]
     Name       vm_parser
     Format     regex
-    Regex      ^(?<time>[^ ]+)\s+(?<level>[^ ]+)\s+(?<source>[^ ]+)\s+(?<msg>.+)$
+    Regex      ^(?<time>Z)\s+(?<level>[^ ]+)\s+(?<source>[^ ]+)\s+(?<msg>.+)$
     Time_Key   time
-    Time_Format %Y-%m-%dT%H:%M:%S.%LZ
+    Time_Format %Y-%m-%dT%H:%M:%S.%L
 EOF
 
 cat << EOF > /etc/fluent-bit/fluent-bit.conf
@@ -128,4 +128,3 @@ cat << EOF > /etc/fluent-bit/fluent-bit.conf
 EOF
 
 systemctl restart fluent-bit
-
