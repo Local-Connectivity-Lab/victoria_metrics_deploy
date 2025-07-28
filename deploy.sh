@@ -9,26 +9,29 @@ if [ -z "${VM_VIEWER_PASSWORD:-}" ]; then
 fi
 
 
-#mkdir -p victoria_metrics
+mkdir -p victoria_metrics
 cd victoria_metrics
 
 
-#vm_exe=victoria-logs-linux-amd64-v1.26.0.tar.gz
-#wget https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v1.26.0/$vm_exe
-#tar xf $vm_exe
-#rm $vm_exe
+vm_exe=victoria-logs-linux-amd64-v1.26.0.tar.gz
+wget https://github.com/VictoriaMetrics/VictoriaLogs/releases/download/v1.26.0/$vm_exe
+tar xf $vm_exe
+rm $vm_exe
 
 
-#vmutils_exe=vmutils-linux-amd64-v1.122.0.tar.gz
-#wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.122.0/$vmutils_exe
-#tar xf $vmutils_exe
-#rm $vmutils_exe vmagent-prod vmalert-prod vmalert-tool-prod vmbackup-prod vmctl-prod vmrestore-prod
+vmutils_exe=vmutils-linux-amd64-v1.122.0.tar.gz
+wget https://github.com/VictoriaMetrics/VictoriaMetrics/releases/download/v1.122.0/$vmutils_exe
+tar xf $vmutils_exe
+rm $vmutils_exe vmagent-prod vmalert-prod vmalert-tool-prod vmbackup-prod vmctl-prod vmrestore-prod
 
 cat << EOF > ./auth.yml
 users:
   - username: user
     password: $VM_VIEWER_PASSWORD
     url_prefix: "http://localhost:9428/"
+    url_map:
+    - src_paths:
+      - "/insert/jsonline"
 EOF
 
 
@@ -87,7 +90,7 @@ systemctl start $vmauth
 
 base64_credentials=$(echo -n user:$VM_VIEWER_PASSWORD | base64)
 
-#curl https://raw.githubusercontent.com/fluent/fluent-bit/master/install.sh | sh
+curl https://raw.githubusercontent.com/fluent/fluent-bit/master/install.sh | sh
 
 parser_file_path=/etc/fluent-bit/vm_parser.conf
 cat << EOF > $parser_file_path
