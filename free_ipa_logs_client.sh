@@ -32,12 +32,17 @@ cat << EOF > /etc/fluent-bit/fluent-bit.conf
     Tag           fipa_log
     Parser        vm_parser
 
+[FILTER]
+    Name    modify
+    Match   fipa_log
+    Add     stream  free_ipa_slapd_access
+
 [OUTPUT]
     Name        http
     Match       fipa_log
     Host        172.16.20.23
     Port        8427  # vmauth port
-    URI         /insert/jsonline?_msg_field=msg&_time_field=time
+    URI         /insert/jsonline?_msg_field=msg&_time_field=time&_stream_fields=stream
     Format      json_lines
     Compress    gzip
     Header      Authorization Basic $base64_credentials
