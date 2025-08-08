@@ -1,3 +1,8 @@
+set -e
+set -u
+set -o pipefail
+set -x
+
 if [ -z "${VM_VIEWER_PASSWORD:-}" ]; then
   echo "Error: Environment variable VM_VIEWER_PASSWORD is not set"
   exit 1
