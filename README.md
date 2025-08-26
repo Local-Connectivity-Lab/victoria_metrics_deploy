@@ -1,0 +1,1 @@
+I ran ./deploy.sh to deploy victoria metrics and also an example to send the logs of victoria metrics itself. The API I used is the `jsonline` API. You need to add the same password as the password to log into the UI into the deploy script as well as an environment variable. I put the script I used for deploying the ldap logs as well in this repo for reference.
